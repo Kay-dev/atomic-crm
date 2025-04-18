@@ -10,13 +10,13 @@ pipeline {
         
         stage('Install') {
             steps {
-                powershell 'make install'
+                powershell 'npm install'
             }
         }
         
         stage('Build') {
             steps {
-                powershell 'make build'
+                powershell 'npm run build'
             }
         }
         
