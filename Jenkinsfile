@@ -36,12 +36,11 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Create a simple deployment step that doesn't need placeholder replacement
                     withCredentials([file(credentialsId: "${KUBE_CONFIG_ID}", variable: 'KUBECONFIG')]) {
-                        // Just update the image directly with kubectl set image
-                        powershell "kubectl --kubeconfig=$env:KUBECONFIG apply -f k8s-deploy.yaml"
-                        powershell "kubectl --kubeconfig=$env:KUBECONFIG set image deployment/atomic-crm atomic-crm=atomic-crm:${IMAGE_TAG}"
-                        powershell "kubectl --kubeconfig=$env:KUBECONFIG rollout status deployment/atomic-crm"
+                        // Use $KUBECONFIG directly for each command
+                        powershell "kubectl --kubeconfig=\"${env:KUBECONFIG}\" apply -f k8s-deploy.yaml"
+                        powershell "kubectl --kubeconfig=\"${env:KUBECONFIG}\" set image deployment/atomic-crm atomic-crm=atomic-crm:${IMAGE_TAG}"
+                        powershell "kubectl --kubeconfig=\"${env:KUBECONFIG}\" rollout status deployment/atomic-crm"
                     }
                 }
             }
