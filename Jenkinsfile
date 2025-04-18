@@ -56,9 +56,9 @@ pipeline {
             echo 'Deployment failed!'
         }
         always {
-            // Clean up Docker images locally
-            powershell "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
-            powershell "docker rmi ${IMAGE_NAME}:latest || true"
+            // Clean up Docker images locally using proper PowerShell error handling
+            powershell "try { docker rmi ${IMAGE_NAME}:${IMAGE_TAG} } catch { Write-Host \"Could not remove image ${IMAGE_NAME}:${IMAGE_TAG}\" }"
+            powershell "try { docker rmi ${IMAGE_NAME}:latest } catch { Write-Host \"Could not remove image ${IMAGE_NAME}:latest\" }"
         }
     }
 }
