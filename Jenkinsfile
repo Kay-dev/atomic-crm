@@ -5,7 +5,7 @@ pipeline {
         // Simplified environment for local usage
         IMAGE_NAME = 'atomic-crm'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
-        KUBE_CONFIG_ID = 'kubeconfig' // Jenkins credential ID for Kubernetes config
+        KUBE_CONFIG_ID = 'kubeconfig' 
     }
 
     stages {
@@ -36,12 +36,21 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
+                    // powershell '''
+                    //   echo "Deploying to Kubernetes...";
+                    // '''
                     withCredentials([file(credentialsId: "${KUBE_CONFIG_ID}", variable: 'KUBECONFIG')]) {
                         powershell '''
                             $kubeconfigPath = $env:KUBECONFIG
                             kubectl --kubeconfig="$kubeconfigPath" apply -f k8s-deploy.yaml --validate=false
-                            kubectl --kubeconfig="$kubeconfigPath" set image deployment/atomic-crm atomic-crm=atomic-crm:${env:IMAGE_TAG}
-                            kubectl --kubeconfig="$kubeconfigPath" rollout status deployment/atomic-crm
+                            
+                            # Add a short delay to ensure the deployment is registered
+                            Start-Sleep -Seconds 5
+                            
+                            # Use -n default to explicitly specify the namespace
+                            kubectl --kubeconfig="$kubeconfigPath" get deployments -n default
+                            kubectl --kubeconfig="$kubeconfigPath" set image deployment/atomic-crm atomic-crm=atomic-crm:${env:IMAGE_TAG} -n default
+                            kubectl --kubeconfig="$kubeconfigPath" rollout status deployment/atomic-crm -n default
                         '''
                     }
                 }
