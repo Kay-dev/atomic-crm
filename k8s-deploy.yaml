@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
       - name: atomic-crm
-        image: atomic-crm:${IMAGE_TAG}
+        image: atomic-crm:latest
+        imagePullPolicy: Never
         ports:
         - containerPort: 80
         resources:
@@ -44,19 +45,19 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: atomic-crm
-  namespace: default
+  name: atomic-crm-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    ngrok.ingress.kubernetes.io/scheme: https
 spec:
+  ingressClassName: ngrok
   rules:
-  - host: atomic-crm.example.com  
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: atomic-crm
-            port:
-              number: 80
+    - host: mongrel-rapid-jointly.ngrok-free.app
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: atomic-crm
+                port:
+                  number: 80
